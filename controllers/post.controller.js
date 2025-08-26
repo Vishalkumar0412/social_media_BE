@@ -388,3 +388,52 @@ export const replyOnComment = async (req, res) => {
     });
   }
 };
+export const getComments = async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    if (!postId) {
+      return res.status(400).json({
+        message: "Post ID is required",
+        success: false,
+      });
+    }
+
+    // Find all comments for this post
+    const comments = await Comment.findAll({
+      where: { postId, parentCommentId: null }, // only top-level comments
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "firstName", "lastName", "username"],
+        },
+        {
+          model: Comment,
+          as: "replies", // requires association
+          include: [
+            {
+              model: User,
+              as: "user",
+              attributes: ["id", "firstName", "lastName", "username"],
+            },
+          ],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    return res.status(200).json({
+      message: "Comments fetched successfully",
+      success: true,
+      comments,
+    });
+  } catch (error) {
+    console.error("Error in getComments:", error);
+    return res.status(500).json({
+      message: "Failed to fetch comments",
+      success: false,
+      error: error.message,
+    });
+  }
+};

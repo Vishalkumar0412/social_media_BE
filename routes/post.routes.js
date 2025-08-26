@@ -3,7 +3,7 @@ import express from 'express'
 import isAuthenticated from '../middlewares/isAuthenticated.js';
 // import {  createPost, deletePost, getAllPofilePost, getFeed, likeOnComment, postComment, replyOnComment, toggleLikePost } from '../controllers/post.controller.js';
 import upload from '../middlewares/multer.js';
-import { createPost, deletePost, getAllProfilePost, getFeed, likeOnComment, postComment, replyOnComment, toggleLikePost } from '../controllers/post.controller.js';
+import { createPost, deletePost, getAllProfilePost, getComments, getFeed, likeOnComment, postComment, replyOnComment, toggleLikePost } from '../controllers/post.controller.js';
 const router= express.Router()
 
 router.post('/',isAuthenticated,upload.single("image"), createPost)
@@ -14,5 +14,6 @@ router.put('/like/:postId',isAuthenticated,toggleLikePost)
 router.post('/comment/:postId',isAuthenticated,postComment)
 router.post('/like-on-comment/:commentId',isAuthenticated,likeOnComment)
 router.post('/reply-on-comment/:commentId',isAuthenticated,replyOnComment)
+router.get('/comments/:postId',isAuthenticated,getComments)
 
 export default router;
