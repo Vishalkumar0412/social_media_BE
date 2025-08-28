@@ -34,3 +34,6 @@ export const deleteVideoFromCloudinary = async (publicId) => {
         
     }
 }
+
+
+// allow only videos and pictures and video only limit 10 mb 

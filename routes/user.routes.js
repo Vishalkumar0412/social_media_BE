@@ -1,5 +1,5 @@
 import express from 'express'
-import { editProfile, getAllUsers, getByUsername, getProfile, login, logout, searchUser, signup } from '../controllers/user.controller.js';
+import { editProfile, followUser, getAllUsers, getByUsername, getProfile, login, logout, searchUser, signup } from '../controllers/user.controller.js';
 import isAuthenticated from '../middlewares/isAuthenticated.js';
 import upload from '../middlewares/multer.js';
 const router= express.Router()
@@ -12,4 +12,5 @@ router.get('/',isAuthenticated, getProfile)
 router.get('/search',isAuthenticated, searchUser)
 router.get('/users',isAuthenticated, getAllUsers)
 router.get('/:username',isAuthenticated, getByUsername)
+router.post('/follow/:followingId',isAuthenticated, followUser)
 export default router;

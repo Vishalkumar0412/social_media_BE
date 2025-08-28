@@ -3,6 +3,8 @@ import bcrypt from 'bcrypt';
 import { generateToken } from '../utills/generateToken.js';
 import { Op } from 'sequelize';
 import { uploadMedia } from '../utills/cloudinary.js';
+import { Post } from '../models/post.model.js';
+import { UserFollower } from '../models/userFollower.model.js';
 
 export const signup = async (req, res) => {
   try {
@@ -106,24 +108,47 @@ export const logout = async (_, res) => {
   }
 };
 
+// import { User } from "../models/index.js";
+
 export const getProfile = async (req, res) => {
   try {
-    const { user } = req;
-    
-    if (!user) {
+    const { user: authUser } = req;
+
+    if (!authUser) {
       return res.status(404).json({
         message: "User details not found",
-        success: false
+        success: false,
       });
     }
-    
+
+    // Fetch user with followers and following
+    const user = await User.findByPk(authUser.id, {
+      attributes: { exclude: ["password"] }, // exclude sensitive fields
+      include: [
+        {
+          model: User,
+          as: "followers",
+          attributes: ["id", "username", "profilePicture","firstName","lastName"],
+          through: { attributes: [] }, // exclude join table fields
+        },
+        {
+          model: User,
+          as: "following",
+          attributes: ["id", "username", "profilePicture","firstName","lastName"],
+          through: { attributes: [] },
+        },
+      ],
+    });
+
     return res.status(200).json({
-      user
+      success: true,
+      user,
     });
   } catch (error) {
+    console.error("getProfile error:", error);
     return res.status(500).json({
       message: "Failed to fetch user",
-      success: false
+      success: false,
     });
   }
 };
@@ -208,25 +233,36 @@ export const editProfile = async (req, res) => {
     });
   }
 };
+// GET /users/:username
+
+
 export const getByUsername = async (req, res) => {
   try {
     const { username } = req.params;
 
     const user = await User.findOne({
       where: { username },
-      attributes: { exclude: ["password"] }, // don’t send password
+      attributes: { exclude: ["password"] },
+      include: [
+        {
+          model: Post,
+          as: "posts",
+          attributes: ["id", "content", "image", "likeCount", "createdAt"],
+          order: [["createdAt", "DESC"]],
+        },
+      ],
     });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    return res.status(200).json(user);
+    return res.status(200).json({ success: true, user });
   } catch (error) {
     console.error("Error fetching user:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+
 export const searchUser=async (req,res)=>{
   const {query}=req.query
   if(!query && query.length===""){
@@ -262,3 +298,58 @@ export const searchUser=async (req,res)=>{
     });
   }
 }
+
+
+export const followUser = async (req, res) => {
+  const userId = req.user.id; // logged-in user
+  const { followingId } = req.params; // user to follow
+
+  if (!userId) {
+    return res.status(400).json({
+      success: false,
+      message: "User is not valid",
+    });
+  }
+
+  if (userId === followingId) {
+    return res.status(400).json({
+      success: false,
+      message: "You cannot follow yourself",
+    });
+  }
+
+  try {
+    const user = await User.findByPk(userId);
+    const targetUser = await User.findByPk(followingId);
+
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User to follow not found",
+      });
+    }
+
+    // Check if already following
+    const isFollowing = await user.hasFollowing(targetUser);
+    if (isFollowing) {
+      return res.status(400).json({
+        success: false,
+        message: "Already following this user",
+      });
+    }
+
+    // Add follow relation
+    await user.addFollowing(targetUser);
+
+    return res.status(200).json({
+      success: true,
+      message: "User followed successfully",
+    });
+  } catch (error) {
+    console.error("Follow error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
