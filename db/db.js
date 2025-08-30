@@ -15,7 +15,7 @@ const connectDB = async () => {
     console.log("PostgreSQL Connected ✅");
 
     // Sync all models
-    await sequelize.sync({ force: false }); // set force: true to drop tables
+    await sequelize.sync({ force: true }); // set force: true to drop tables
     console.log("Database synchronized ✅");
 
     return sequelize;

@@ -4,9 +4,15 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import connectDB from "./db/db.js";
 import routes from "./routes/index.js";
+import {createServer} from 'http'
+
+
 
 // Import models and associations
 import "./models/associations.js";
+
+import Chat from "./models/chat.model.js";
+import initWebSocket from "./utills/webSockets.js";
 
 dotenv.config({});
 
@@ -15,6 +21,7 @@ connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const server=createServer(app);
 
 // Default middleware
 app.use(express.json());
@@ -27,7 +34,9 @@ app.use(cors({
  
 // APIs
 app.use('/api/v1', routes);
+initWebSocket(server)
  
-app.listen(PORT, () => {
-    console.log(`Server listening at port ${PORT}`);
+server.listen(PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`🔌 WebSocket listening on ws://localhost:${PORT}`);
 });

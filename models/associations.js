@@ -4,6 +4,7 @@ import { Comment } from "./comment.model.js";
 import { PostLike } from "./postLike.model.js";
 import { CommentLike } from "./commentLike.model.js";
 import { UserFollower } from "./userFollower.model.js";
+import Chat from "./chat.model.js";
 
 // User-Post relationship
 User.hasMany(Post, { foreignKey: "userId", as: "posts" });
@@ -43,6 +44,11 @@ User.belongsToMany(User, {
   as: "followers" 
 });
 
+//chat 
+User.hasMany(Chat, { foreignKey: "senderId", as: "sentMessages" });
+User.hasMany(Chat, { foreignKey: "receiverId", as: "receivedMessages" });
+Chat.belongsTo(User, { foreignKey: "senderId", as: "sender" });
+Chat.belongsTo(User, { foreignKey: "receiverId", as: "receiver" });
 export {
   User,
   Post,
