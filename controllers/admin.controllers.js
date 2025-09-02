@@ -148,7 +148,7 @@ export const deleteUser = async (req, res) => {
     });
   }
 };
-const createAdmin = async (req, res) => {
+ export const createAdmin = async (req, res) => {
   const { username, password, email, firstName, lastName } = req.body;
 
   // 🛑 Input validation
