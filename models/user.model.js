@@ -1,4 +1,4 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, Sequelize } from "sequelize";
 import sequelize from "./index.js";
 
 const User = sequelize.define("User", {
@@ -46,6 +46,11 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     defaultValue: "",
   },
+  role:{
+    type:Sequelize.ENUM('USER','ADMIN','SUPER-ADMIN'),
+    defaultValue:"USER",
+    allowNull:false
+  }
 }, {
   tableName: "users",
   indexes: [

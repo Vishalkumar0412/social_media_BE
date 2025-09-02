@@ -38,6 +38,7 @@ export const signup = async (req, res) => {
       username,
       lastName,
       email,
+      role:"USER",
       password: hashedPassword
     });
 

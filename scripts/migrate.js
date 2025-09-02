@@ -7,6 +7,7 @@ const migrate = async () => {
   try {
     // This will create all tables if they don't exist
     await sequelize.sync({ force: false });
+    await sequelize.sync({ alter: true });
     console.log("Database migration completed successfully!");
     process.exit(0);
   } catch (error) {
