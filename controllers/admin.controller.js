@@ -372,7 +372,7 @@ export const createAdmin = async (req, res) => {
 // SUPER ADMIN: Edit Admin
 export const editAdmin = async (req, res) => {
   const { id } = req.params;
-  const { username, email, firstName, lastName, password } = req.body;
+  const { username, email, firstName, lastName } = req.body;
 
   try {
     const admin = await User.findByPk(id);
@@ -396,9 +396,7 @@ export const editAdmin = async (req, res) => {
     if (email) updateData.email = email;
     if (firstName) updateData.firstName = firstName;
     if (lastName) updateData.lastName = lastName;
-    if (password) {
-      updateData.password = await bcrypt.hash(password, 10);
-    }
+ 
 
     await admin.update(updateData);
 
