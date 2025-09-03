@@ -115,31 +115,40 @@ export const requestUserDeletion = async (req, res) => {
   const { id } = req.params;
   const requestedBy = req.user.id;
 
+  // safer access
+  const reason = req.body?.reason;
+
   try {
+    if (!reason || reason.trim().length === 0) {
+      return res.status(400).json({
+        message: "Reason for deletion is required",
+        success: false
+      });
+    }
+
     const user = await User.findByPk(id);
 
     if (!user) {
       return res.status(404).json({
         message: "User not found",
-        success: false,
+        success: false
       });
     }
 
     if (user.role !== "USER") {
       return res.status(400).json({
-        message: "Cannot request deletion of admin users",
+        message: "Cannot request deletion of admin or super-admin accounts",
         success: false
       });
     }
 
-    // Check if request already exists
     const existingRequest = await UserDeletionRequest.findOne({
       where: { userId: id, status: "PENDING" }
     });
 
     if (existingRequest) {
       return res.status(400).json({
-        message: "Deletion request already exists for this user",
+        message: "A pending deletion request already exists for this user",
         success: false
       });
     }
@@ -147,7 +156,7 @@ export const requestUserDeletion = async (req, res) => {
     const deletionRequest = await UserDeletionRequest.create({
       userId: id,
       requestedBy,
-      reason: req.body.reason || "Admin requested deletion"
+      reason
     });
 
     return res.status(201).json({
@@ -155,14 +164,17 @@ export const requestUserDeletion = async (req, res) => {
       success: true,
       request: deletionRequest
     });
+
   } catch (error) {
     console.error("requestUserDeletion error:", error);
     return res.status(500).json({
       message: "Failed to submit deletion request",
       success: false,
+      error: error.message
     });
   }
 };
+
 
 // SUPER ADMIN: View all deletion requests
 export const getPendingDeletionRequests = async (req, res) => {
@@ -412,7 +424,13 @@ export const editAdmin = async (req, res) => {
 export const requestPostDeletion = async (req, res) => {
   const { postId } = req.params;
   const requestedBy = req.user.id;
-
+  const {reason}=req.body
+  if(!reason || reason.trim().length===0){
+    return res.status(400).json({
+      message: "Reason for deletion is required",
+      success: false
+    });
+  } 
   try {
     const post = await Post.findByPk(postId, {
       include: [
