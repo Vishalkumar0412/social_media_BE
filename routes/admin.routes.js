@@ -15,7 +15,7 @@ import {
   getPendingPostDeletionRequests,
   handlePostDeletionRequest,
   getAllPostsForAdmin
-} from '../controllers/admin.controllers.js';
+} from '../controllers/admin.controller.js';
 
 const router = express.Router();
 
