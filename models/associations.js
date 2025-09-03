@@ -4,7 +4,11 @@ import { Comment } from "./comment.model.js";
 import { PostLike } from "./postLike.model.js";
 import { CommentLike } from "./commentLike.model.js";
 import { UserFollower } from "./userFollower.model.js";
+// import { UserDeletionRequest } from "./userDeletionRequest.model.js";
+// import { PostDeletionRequest } from "./postDeletionRequest.model.js";
 import Chat from "./chat.model.js";
+import { PostDeletionRequest } from "./PostDeletionRequest .model.js";
+import { UserDeletionRequest } from "./UserDeletionRequest.model.js";
 
 // User-Post relationship
 User.hasMany(Post, { foreignKey: "userId", as: "posts" });
@@ -44,11 +48,30 @@ User.belongsToMany(User, {
   as: "followers" 
 });
 
-//chat 
+// Chat relationships
 User.hasMany(Chat, { foreignKey: "senderId", as: "sentMessages" });
 User.hasMany(Chat, { foreignKey: "receiverId", as: "receivedMessages" });
 Chat.belongsTo(User, { foreignKey: "senderId", as: "sender" });
 Chat.belongsTo(User, { foreignKey: "receiverId", as: "receiver" });
+
+// User Deletion Request relationships
+User.hasMany(UserDeletionRequest, { foreignKey: "userId", as: "deletionRequests" });
+User.hasMany(UserDeletionRequest, { foreignKey: "requestedBy", as: "requestedDeletions" });
+User.hasMany(UserDeletionRequest, { foreignKey: "reviewedBy", as: "reviewedDeletions" });
+
+UserDeletionRequest.belongsTo(User, { foreignKey: "userId", as: "user" });
+UserDeletionRequest.belongsTo(User, { foreignKey: "requestedBy", as: "requester" });
+UserDeletionRequest.belongsTo(User, { foreignKey: "reviewedBy", as: "reviewer" });
+
+// Post Deletion Request relationships
+Post.hasMany(PostDeletionRequest, { foreignKey: "postId", as: "deletionRequests" });
+User.hasMany(PostDeletionRequest, { foreignKey: "requestedBy", as: "requestedPostDeletions" });
+User.hasMany(PostDeletionRequest, { foreignKey: "reviewedBy", as: "reviewedPostDeletions" });
+
+PostDeletionRequest.belongsTo(Post, { foreignKey: "postId", as: "post" });
+PostDeletionRequest.belongsTo(User, { foreignKey: "requestedBy", as: "requester" });
+PostDeletionRequest.belongsTo(User, { foreignKey: "reviewedBy", as: "reviewer" });
+
 export {
   User,
   Post,
@@ -56,4 +79,6 @@ export {
   PostLike,
   CommentLike,
   UserFollower,
+  UserDeletionRequest,
+  PostDeletionRequest,
 };
