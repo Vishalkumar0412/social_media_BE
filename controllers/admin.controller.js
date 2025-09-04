@@ -615,3 +615,45 @@ export const getAllPostsForAdmin = async (req, res) => {
     });
   }
 };
+export const deletePostDirectly = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const post = await Post.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "username", "firstName", "lastName"]
+        }
+      ]
+    });
+
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found",
+        success: false,
+      });
+    }
+
+    // ✅ delete post directly
+    await post.destroy();
+
+    return res.status(200).json({
+      message: "Post deleted successfully",
+      success: true,
+      deletedPost: {
+        id: post.id,
+        content: post.content,
+        user: post.user,
+      }
+    });
+  } catch (error) {
+    console.error("deletePostDirectly error:", error);
+    return res.status(500).json({
+      message: "Failed to delete post",
+      success: false,
+      error: error.message
+    });
+  }
+};

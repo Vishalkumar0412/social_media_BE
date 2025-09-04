@@ -16,6 +16,7 @@ import {
   handlePostDeletionRequest,
   getAllPostsForAdmin
 } from '../controllers/admin.controller.js';
+import { deletePostDirectly } from '../controllers/admin.controller.js';
 
 const router = express.Router();
 
@@ -41,9 +42,13 @@ router.patch('/handle-user-deletion/:requestId', isAuthenticated, roleMiddleware
 // Post management
 router.get('/posts', isAuthenticated, roleMiddleware(["ADMIN", "SUPER-ADMIN"]), getAllPostsForAdmin);
 router.post('/request-post-deletion/:postId', isAuthenticated, roleMiddleware(["ADMIN"]), requestPostDeletion);
+router.delete('/post-deletion/:postId', isAuthenticated, roleMiddleware(["SUPER-ADMIN"]), deletePostDirectly);
 
 // Super Admin - Post deletion approval system
 router.get('/pending-post-deletions', isAuthenticated, roleMiddleware(["SUPER-ADMIN"]), getPendingPostDeletionRequests);
 router.patch('/handle-post-deletion/:requestId', isAuthenticated, roleMiddleware(["SUPER-ADMIN"]), handlePostDeletionRequest);
+
+
+// super admin can directly delte the post 
 
 export default router;
